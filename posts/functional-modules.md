@@ -45,8 +45,8 @@ to do that, you have to check at least `UserComponent`, `UserComponentHelpers`,
 conversion.
 
 So at this point, you may find yourself yearning for the days of classes, where
-a `User` would handle figuring out it's own `fullName`. Happily, it turns out
-there's a way to get the best of both worlds.
+a `User` would handle figuring out it's own `fullName`. Happily, we can get the
+best of both worlds by borrowing from functional langagues like Elixir.
 
 Elixir, a functional langage that's been growing in popularity, has a concept
 called structs. There's not unique to the language, but there's set up in a
@@ -79,8 +79,8 @@ in Domain Drivien Design parlance) that they work on.
 
 So, you can gather up all the user-related pure functions, from any component,
 and put them together in a user module. That's helpful, but both a class and an
-elixir module define their data, as well as their logic. In JavaScript, there's no
-built-in way to do that.
+elixir module define their data, as well as their logic. In JavaScript, there's
+no built-in way to do that.
 
 Functional projects often end up with grab-bags of pure functions Like
 component.helpers.ts How to better organize? Types! Have a module define a main
