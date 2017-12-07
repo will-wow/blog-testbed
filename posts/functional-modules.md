@@ -1,15 +1,15 @@
 # Learning from Elixir to organize functional projects in JS
 
-Moving your code towards Functional Programming can have a lot of benefits - it
+Moving your code towards a more functional style can have a lot of benefits - it
 can be easier to reason about, easier to test, more declarative, and more. One
 thing that often seems to come out worse in the move to FP, though, is
-organization. In Object-Oriented Programming, classes are a pretty useful unit
+organization. In Object Oriented Programming, classes are a pretty useful unit
 of organization - methods have to be in the same class as the data they work on,
 so your code is pushed towards being organized in pretty logical ways.
 
 In a modern Javascript project, however, things are often a little less
 clear-cut. You often build you application around framework constructs like
-components, services, controllers, etc. This framework code is often a stateful
+components, services, and controllers. This framework code is often a stateful
 class with a lot of dependencies. So, being a good functional programmer, you
 pull your business logic out into small pure functions, and then compose them
 together in your component to transform some state or whatever. Now you can test
@@ -30,9 +30,8 @@ or something? Now your component file looks a lot cleaner, just importing the
 functions it needs from the helper. You can test those used functions, and treat
 the other ones basically like private methods.
 
-So far so good - but that `UserComponentHelpers` file is kind of a grab-bag of
-functions. You've got `fullName(user)` (which combines the user's first, last
-and middle names) sitting next to // TODO MORE EXAMPLES
+So far so good - though that `UserComponentHelpers` file is kind of a grab-bag
+of functions. You've got `fullName(user)` sitting next to `formatDate(date)`.
 
 And then you get a new story to show users' full names in the navbar. Okay, so
 now you're going to need that `fullName` function in two places. Maybe toss it
@@ -46,14 +45,13 @@ conversion.
 
 So at this point, you may find yourself yearning for the days of classes, where
 a `User` would handle figuring out it's own `fullName`. Happily, we can get the
-best of both worlds by borrowing from functional langagues like Elixir.
+best of both worlds by borrowing from functional languages like Elixir.
 
-Elixir, a functional langage that's been growing in popularity, has a concept
-called structs. There's not unique to the language, but there's set up in a
-particularly useful way. Most files have a single module, which holds some
-functions. Modules also can have a single struct defined for them, which is a
-list of fields associated with that module name. So a User module might look
-something like this:
+Elixir has a concept called structs. There's not unique to the language, but it
+sets them up in a particularly useful way. Files generally have a single module,
+which holds some functions. Modules also can have a single struct defined for
+them, which is a list of fields associated with that module name. So a User
+module might look something like this:
 
 ```elixir
 defmodule User do
@@ -66,41 +64,109 @@ end
 ```
 
 Even if you're never seen any Elixir before, that should be pretty easy to
-follow. There's a user struct (displayed as `%User{}` in code) that has a first
+follow. There's a user struct (written as `%User{}` in code) that has a first
 name, last name, and email. There's also a related full_name function that takes
 a User, and operates on it. Looking at this, it's clear that the module should
 be organized like a class - we can define the data that makes up a user, and
 then some logic that operates on `User`s, all in one place.
 
-So that's Elixir, but there's no reason we can't use the same patten in
-JavaScript-land. Instead of organizing you pure functions around the components
+So that's Elixir, but there's no reason we can't use the same pattern in
+JavaScript-land. Instead of organizing your pure functions around the components
 they're used in, you can organize them around the data types (or domain objects
-in Domain Drivien Design parlance) that they work on.
+in Domain Driven Design parlance) that they work on.
 
 So, you can gather up all the user-related pure functions, from any component,
 and put them together in a user module. That's helpful, but both a class and an
-elixir module define their data, as well as their logic. In JavaScript, there's
-no built-in way to do that.
+elixir module define their data structure, as well as their logic. In
+JavaScript, there's no built-in way to do that.
 
-Functional projects often end up with grab-bags of pure functions Like
-component.helpers.ts How to better organize? Types! Have a module define a main
-interface Name it the same as the module Put any functions that operate on the
-type in the module Be consistent with either always taking the data as the first
-argument, or the last one if you’re using a lot of currying This gets you the
-benefits of grouping data and logic, like with OOP, but without the cognitive
-overhead of mutable state This is the normal way to do things in languages like
-Elixir and Go, that have Structs What about functions that convert from one type
-to another This is a common operation in FP If you put the function in the
-module of the type being converted from, you can call it Type.to_other_type,
-which is nice Except that the current trend is to import individual functions,
-and if you just have a to_other_type, it’s not obvious what the first type was
-One nice pattern from OCaml is to call them “type_2_of_type_1” It’s unambiguous,
-and easy to grep for - if you know both types, you can find a conversion
-function (if it exists) Composing function Of course, this is FP, so in the end
-you’ll be composing functions that work on different types into pipelines of
-logic. So where do those compositions go? Their own modules named by
-feature/context You might have a User and Token modules for users and comparing
-tokens, and then a ForgotPassword module for fetching a token from a user and
-comparing it to one from the UI The last step of composition is probably going
-to happen in your framework files, like components and controllers See Baby In A
-Corner
+That's where something like TypeScript comes in. With Typescript, you can define
+interfaces and types, which describe the shape of objects and other pieces of
+data in your application. So now we can re-create that same `User` module in
+TypeScript:
+
+```typescript
+export interface User {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export function fullName(user: User) {
+  return `${user.firstName} ${user.lastName};
+}
+```
+
+You could do something very similar with Facebook's Flow, or any other library
+that lets you define the shape of your data. Honestly, if you're not worried
+about type safety, you could even get away with just a comment, something like:
+
+```javascript
+/*
+User: firstName, lastName, email
+*/
+
+export function fullName(user) {
+  return `${user.firstName} ${user.lastName};
+}
+```
+
+The important part is that it's clear at a glance what sort of data a user is.
+This gets you the benefits of grouping data and logic, like with OOP, but
+without the cognitive overhead of mutable state.
+
+However you define your data, the important part is that you put definition of
+the data next to the logic on the data in the same place. That way it's clear
+where your functions should go, and where to look for them later. Also, since
+all your user-specific logic is in once place, you'll probably be able to find
+some shared logic to pull out that might not have been obvious if it was
+scattered all over your codebase.
+
+## Structuring Functions
+
+It's good practice to always put the module's data type in a consistent position
+in your functions - either always the first parameter, or always the last if
+you're doing a lot of currying.
+
+Functions that deal with converting between two types - pretty common in
+functional programming - would probably go into the module of the type being
+passed in - to `userToFriend(user, friendData)` would go into the User module.
+In Elixir it would idiomatic to call that `User.to_friend`, and if you're okay
+with using `TODO WHAT IS THIS CALLED` \* inports, that'll work great:
+
+```javascript
+import * as User from 'accounts/User';
+
+User.toFriend(user):
+```
+
+On the other hand, if you're following the current JavaScript practice of doing individual
+imports, then calling the function `userToFriend` would be more clear:
+
+```javascript
+import { userToFriend } from 'accounts/User';
+
+userToFriend(user):
+```
+
+## Composing Functions
+
+Of course, in your application you'll end up chaining a bunch of these functions
+together. As much as possible, it's nice to keep that logic on other functional
+modules.
+
+Some of that will happen in other modules, but your components and controllers
+are the places where you'll end up pulling in functions from a bunch of modules,
+and composing them together. So you might have `User` and `Token` modules and
+then a `ForgotPassword` module for fetching a token for a user and comparing it
+to one from a form field.
+
+Then, your framework-specific `forgotPassword`
+component or reducer just has to pull together the user and form state, and call
+out to your functional modules.
+
+## Wrapping up
+
+Decoupling your business logic from your framework keeps it nicely organized and testable, makes it easier to onboard developers who don't know your specific framework, and means you don't have to be thinking about controllers or reducers when you just want to be thinking about users and passwords.
+
+And this process doesn't have to happen all at once. Try pulling all the logic for just one module together, and see how it goes. You may be surprised to find how much duplication you find!
