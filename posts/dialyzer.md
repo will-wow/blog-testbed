@@ -8,7 +8,7 @@ missing types. Elixir [typespecs](https://hexdocs.pm/elixir/typespecs.html) are
 another great compromise - they help you think with types, without losing the
 flexibility of a dynamic type system.
 
-You can't talk about typespecs withuot talking about
+You can't talk about typespecs without talking about
 [Dialyzer](http://erlang.org/doc/man/dialyzer.html). It's a static analysis tool
 for Erlang that reports type errors it finds in your code. With
 [Dialyxir](https://github.com/jeremyjh/dialyxir), it's easy to use on your
@@ -85,4 +85,4 @@ parameters in parentheses, then the return type after two colons. If you list
 the parameters you're required to list the return type too, but you can always
 opt out of committing to typing something with the `any` type.
 
-Union types, which describe things that can be multiple types, are created by combining the types with a `|`, liek with `(number | String.t)`.
+Union types, which describe things that can be multiple types, are created by combining the types with a `|`, like with `(number | String.t)`.
